@@ -131,3 +131,4 @@ dmypy.json
 easy_ham/
 spam/
 Pipfile*
+.vscode/
