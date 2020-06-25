@@ -1,49 +1,59 @@
-from sklearn.datasets import make_blobs
-
-''' SCIKIT LEARN METHODS
-fit(self, X, y[, sample_weight])
-Fit Naive Bayes classifier according to X, y
-
-get_params(self[, deep])
-Get parameters for this estimator.
-
-predict(self, X)
-Perform classification on an array of test vectors X.
-
-predict_log_proba(self, X)
-Return log-probability estimates for the test vector X.
-
-predict_proba(self, X)
-Return probability estimates for the test vector X.
-
-score(self, X, y[, sample_weight])
-Return the mean accuracy on the given test data and labels.
-'''
+from collections import defaultdict
+import numpy as np
 
 class MultinomialNaiveBayes:
-    def __init__(self):
-        # any/all setup inputs go here
-        pass
+    def __init__(self, k=0.5):
+        self.k = k
 
-    def fit(self, X_train):
-        # TODO
-        # 1. CALCULATE PROBABILITIES FOR EACH CLASS (PRIORS)
-        # 2. CALCULATE CONDITIONAL PROBABILITIES FOR EACH CONDITION (CLASSIFICATION)
-        # 3. ADD IN PSEUDOCOUNTS / SMOOTHING
-        # returns nothing
-        pass
+    def prior_probabilities(self, y):
+        count = defaultdict(int)
+        for i in y:
+            count[i] += 1
+        return {i: [count[i], count[i]/len(y)] for i in count}
+
+    def conditional_probabilities(self, X, y, k=0.5):
+        # there has to be a better way to write this
+        # establish blank dictionary
+        counts = {i: [0] * len(X[0]) for i in list(set(y))}
+        # cumulative count for each class
+        for i in range(len(y)):
+            for idx, count in enumerate(X[i]):
+                counts[y[i]][idx] += count
+        # turns cumulative count into "smoothed" probability
+        for key, values in counts.items():
+            total = sum(values)
+            for idx, value in enumerate(values):
+                values[idx] = (value + k) / (total + 2 * k)
+        return counts
+
+    def fit(self, X, y):
+        self.priors = self.prior_probabilities(y)
+        self.conds = self.conditional_probabilities(X, y, self.k)
+        # class_map = {i: unique[i] for i in range(len(unique))}
 
     def predict(self):
         # PASS IN TOKENIZED VALUES, WORD PROBABILITIES, AND PRIORS
-        # CALCULATE PROBABILITIES FOR EACH CONDITION
+        # CALCULATE PROBABILITIES FOR EACH CLASSIFICATION
+        # WRITE A INDIVIDUAL PREDICTION FUNCTION 
+            # def score(dictionary of conditional probabiliity, prediction text_vector):
+            # do I need log scoring?
+            # spam_probability function from DS, from scratch book is good
+        # SOMETHING LIKE: for each i (class) in dictionary of conditional probabilities
+            # call score function, return max
         pass
 
-def fit_distribution():
 
-    return
+def main():
+    # text/spam processing done here
+    pass
 
-X, y = make_blobs(n_samples=100, centers=2, n_features=2, random_state=1)
-print(X.shape, y.shape)
-print(X[:5])
-print(y[:5])
 
+rng = np.random.RandomState(1)
+X = rng.randint(5, size=(6, 10))
+y = np.array([1, 2, 3, 1, 2, 3])
+mnb = MultinomialNaiveBayes()
+mnb.conditional_probabilities(X, y)
+mnb.fit(X, y)
+# print(mnb.prior_probabilities(y))
+
+# TODO
