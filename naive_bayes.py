@@ -44,8 +44,8 @@ class MultinomialNaiveBayes:
                 probs,
                 self.priors[i]
             )
-        print(max(self.results, key=self.results.get))
-        return max(self.results, key=self.results.get)
+        # print(max(self.results, key=self.results.get))
+        # return max(self.results, key=self.results.get)
 
     def get_proba(self):
         print(self.results)
